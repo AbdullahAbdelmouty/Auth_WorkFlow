@@ -1,10 +1,10 @@
 const User = require('../Models/user')
-
+const CustomError = require('../Errors')
 const register = async (req, res) => {
     const { email, name, password } = req.body;
     const emailAlreadyExists = await User.findOne({ email });
     if (emailAlreadyExists) {
-    throw new Error('Email already exists');
+    throw new CustomError.BadRequestError('Email already exists');
     }
     // first registered user is an admin
     const isFirstAccount = (await User.countDocuments({})) === 0;
@@ -15,7 +15,5 @@ const register = async (req, res) => {
 };
   
   module.exports = {
-    register,
-    login,
-    logout,
+    register
   };
