@@ -15,7 +15,6 @@ const register = async (req, res) => {
 };
 const login = async(req,res)=>{
   const {email,password} = req.body;
-  const {isVerifiedToken} = req.user;
   if(!email||!password){
     throw new CustomError.BadRequestError('Please provide email and password')
   }
@@ -27,7 +26,7 @@ const login = async(req,res)=>{
   if(!isPassowrdCorrect){
     throw new CustomError.UnAuthenticatedError('Passowrd not exist please try again')
   }
-  if(!isVerifiedToken){
+  if(!user.isVerifiedToken){
     throw new CustomError.UnAuthorizedError("Please verify email")
   }
 }
