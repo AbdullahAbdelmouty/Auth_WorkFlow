@@ -14,7 +14,7 @@ app.use(cookiesParser(process.env.JWT_SECERT))
 
 app.use('/api/v1/auth', authRouter);
 
-app.use(notFoundMiddleware);
+// app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
 
 const PORT = 5000||process.env.PORT

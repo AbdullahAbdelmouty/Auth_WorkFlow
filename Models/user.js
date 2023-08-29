@@ -30,7 +30,7 @@ const UserSchema = new mongoose.Schema({
     verificationToken:{
         type:String,
     },
-    isVerifiedToken:{
+    isVerified:{
         type:Boolean,
         default:false
     },
@@ -46,8 +46,8 @@ const UserSchema = new mongoose.Schema({
         this.password = await bcrypt.hash(this.password,salt)
     })
 
-    UserSchema.methods.comparePassword = async function(candidatePassword){
-        const isMatch = await bcrypt.compare(candidatePassword,this.password)
-        return isMatch;
+    UserSchema.methods.comparePassword = async function (canditatePassword){
+        const isMatch = await bcrypt.compare(canditatePassword,this.password);
+        return isMatch
     }
-module.exports = UserSchema
+module.exports = mongoose.model('User',UserSchema)
