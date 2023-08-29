@@ -30,7 +30,13 @@ const login = async(req,res)=>{
     throw new CustomError.UnAuthorizedError("Please verify email")
   }
 }
+
+const logout = async(req,res)=>{
+  res.send("Dd")
+}
   
   module.exports = {
-    register
+    register,
+    login,
+    logout
   };

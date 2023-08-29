@@ -7,7 +7,7 @@ const jwt = require('jsonwebtoken')
 //2- secert key 
 //3-object contain some of properties about token such as expires date
 const createJWT = ({payload})=>{
-    const token = jwt.sign(payload,process.env.JWT_SECRET,{expiresIn:process.env.TOKEN_LIFETIME});
+    const token = jwt.sign(payload,process.env.JWT_SECERT,{expiresIn:process.env.TOKEN_LIFETIME});
     return token
 }
 // cookies
@@ -23,7 +23,7 @@ const attachCookiesToResponse = ({res,user})=>{
     })
 }
 
-const isTokenValid = ({ token }) => jwt.verify(token, process.env.JWT_SECRET);
+const isTokenValid = ({ token }) => jwt.verify(token, process.env.JWT_SECERT);
 
 module.exports = {
     createJWT,
