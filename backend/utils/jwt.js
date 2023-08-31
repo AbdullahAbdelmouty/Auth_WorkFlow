@@ -11,17 +11,37 @@ const createJWT = ({payload})=>{
     return token
 }
 // cookies
-const attachCookiesToResponse = ({res,user})=>{
-    const token = createJWT({payload:user})
+const attachCookiesToResponse = ({res,user,refreshToken})=>{
+    const accessTokenJWT = createJWT({payload:{user}});
+    const refreshTokenJWT = createJWT({payload:{user,refreshToken}})
     const oneDay = 1000*60*60*24
-    res.cookie('token',
-    token,
+    res.cookie('accessToken',
+    accessTokenJWT,
+    {httpOnly: true,
+    secure: process.env.NODE_ENV === 'production', //
+    signed: true, // 
+    maxAge:1000
+    })
+    res.cookie('accrefreshTokenessToken',
+    refreshTokenJWT,
     {httpOnly: true,
     expires:new Date(Date.now() + oneDay),
-    secure: process.env.NODE_ENV, //
+    secure: process.env.NODE_ENV === 'production', //
     signed: true, // 
     })
 }
+
+// const attachSingleCookeToResponse = ({res,user})=>{
+//     const token = createJWT({payload:user})
+//     const oneDay = 1000*60*60*24
+//     res.cookie('token',
+//     token,
+//     {httpOnly: true,
+//     expires:new Date(Date.now() + oneDay),
+//     secure: process.env.NODE_ENV, //
+//     signed: true, // 
+//     })
+// }
 
 const isTokenValid = ({ token }) => jwt.verify(token, process.env.JWT_SECERT);
 

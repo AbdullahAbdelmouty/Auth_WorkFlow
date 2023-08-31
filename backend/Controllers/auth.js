@@ -48,7 +48,7 @@ const login = async(req,res)=>{
   const isPasswordCorrect = await user.comparePassword(password)
   console.log('after');
   if(!isPasswordCorrect){
-    throw new UnAuthenticatedError('Invaild Credentials')
+    throw new UnAuthenticatedError('Invaild Credentials ')
   }
   // console.log(isPasswordCorrect);
   if(!user.isVerified){
@@ -59,10 +59,21 @@ const login = async(req,res)=>{
   refreshToken = crypto.randomBytes(40).toString('hex');
   const ip = req.ip;
   const userAgent = req.headers['user-agent'];
-  const userToken = {refreshToken,userAgent,ip,user:user._id}
-  const token = await Token.create(userToken)
-  // attachCookiesToResponse({res,user:tokenUser})
-  res.status(201).json({user:tokenUser,token});
+  const userToken = {refreshToken,userAgent,ip,user:user._id};
+  await Token.create(userToken);
+  //check if token exist
+  const TokenExist =  Token.findOne({user:user._id})
+  if(TokenExist){
+    refreshToken = TokenExist.refreshToken
+    if(!TokenExist.isValid){
+      throw new UnAuthenticatedError('Invaild Credentials')
+    }
+    attachCookiesToResponse({res,user:tokenUser,refreshToken})
+    res.status(201).json({user:tokenUser});
+    return;
+  }
+  attachCookiesToResponse({res,user:tokenUser,refreshToken})
+  res.status(201).json({user:tokenUser});
 }
 const logout = async(req,res)=>{
   res.send("Dd")
