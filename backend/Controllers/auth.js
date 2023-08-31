@@ -1,8 +1,9 @@
 const User = require('../Models/user')
+const Token = require('../Models/token')
 const CustomError = require('../Errors')
 const {BadRequestError,UnAuthenticatedError} = require('../Errors')
 const crypto = require('crypto')
-const {createUserToken,attachCookiesToResponse} = require('../utils')
+const {createUserToken,attachCookiesToResponse,sendVerification} = require('../utils')
 const register = async (req, res) => {
     const { email, name, password } = req.body;
     const emailAlreadyExists = await User.findOne({ email });
@@ -14,6 +15,8 @@ const register = async (req, res) => {
     const role = isFirstAccount ? 'admin' : 'user';
     const verificationToken = crypto.randomBytes(40).toString('hex') // random string
     const user = await User.create({ name, email, password, role,verificationToken });
+    const origin = 'http://localhost:3000'
+    await sendVerification({name:user.name,email:user.email,verificationToken,origin})
     res.status(201).json({msg:"Please go to your email to verifiy the account"})
 };
 
@@ -52,8 +55,14 @@ const login = async(req,res)=>{
     throw new UnAuthenticatedError('Please verifiy email')
   }
   const tokenUser = createUserToken(user)
-  attachCookiesToResponse({res,user:tokenUser})
-  res.status(201).json({user:tokenUser});
+  let refreshToken = '';
+  refreshToken = crypto.randomBytes(40).toString('hex');
+  const ip = req.ip;
+  const userAgent = req.headers['user-agent'];
+  const userToken = {refreshToken,userAgent,ip,user:user._id}
+  const token = await Token.create(userToken)
+  // attachCookiesToResponse({res,user:tokenUser})
+  res.status(201).json({user:tokenUser,token});
 }
 const logout = async(req,res)=>{
   res.send("Dd")
