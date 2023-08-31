@@ -1,14 +1,29 @@
 const jwt = require('jsonwebtoken');
 const {UnauthenticatedError,UnauthorizedError} = require("../Errors");
-const {isTokenValid} = require('../utils')
+const {isTokenValid,attachCookiesToResponse} = require('../utils');
+const Token =  require('../Models/token')
 const authenticateUser  = async(req,res,next)=>{
-  const token = req.signedCookies.token
-  if(!token){
-  throw new UnauthenticatedError("Authentication invalid")
-  }
+  const {accessToken,refreshToken} = req.signedCookies;
   try {
-    const { name, userId, role } = isTokenValid({ token });
-    req.user = { name, userId, role };
+    if(accessToken){
+      const payload = isTokenValid(accessToken);
+      res.user = payload.user;
+      return next()
+    }
+    const payload = isTokenValid(refreshToken);
+    const tokenExist = await Token.findOne({
+      user:payload.user.userId,
+      refreshToken:payload.refreshToken
+    })
+    if(!tokenExist||!tokenExist?.isVaild){
+      throw new UnauthenticatedError("Authentication invalid")
+    }
+    attachCookiesToResponse({
+      res,
+      user:payload.user,
+      refreshToken:tokenExist.refreshToken
+    })
+    req.user = payload.user;
     next();
   } catch (error) {
   throw new UnauthenticatedError("Authentication invalid")
