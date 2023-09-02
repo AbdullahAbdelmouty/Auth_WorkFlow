@@ -3,7 +3,7 @@ const Token = require('../Models/token')
 const CustomError = require('../Errors')
 const {BadRequestError,UnAuthenticatedError} = require('../Errors')
 const crypto = require('crypto')
-const {createUserToken,attachCookiesToResponse,sendVerification} = require('../utils')
+const {createUserToken,attachCookiesToResponse,sendVerification,sendResetPassword} = require('../utils')
 const user = require('../Models/user')
 const register = async (req, res) => {
     const { email, name, password } = req.body;
@@ -105,9 +105,11 @@ const forgotPassword = async(req,res)=>{
   if(user){
     const passwordToken = crypto.randomBytes(70).toString('hex');
     // send email
+    const origin = 'http://localhost:3000'
+    await sendResetPassword({name:user.name,email:user.email,token:passwordToken,origin})
     const tenMinutes = 1000*60*10;
     const passwordTokenExpirationDate = new Date(Date.now()+tenMinutes);
-    user.save()
+    await user.save()
   }
   // notes you must send msg otherwise the email is already exist in the database or not
   // to prevent attackers from snooping what emails are exist in db,by traying to write email and see response
