@@ -7,7 +7,7 @@ const authenticateUser  = async(req,res,next)=>{
   try {
     if(accessToken){
       const payload = isTokenValid(accessToken);
-      res.user = payload.user;
+      req.user = payload.user;
       return next()
     }
     const payload = isTokenValid(refreshToken);
@@ -26,7 +26,8 @@ const authenticateUser  = async(req,res,next)=>{
     req.user = payload.user;
     next();
   } catch (error) {
-  throw new UnauthenticatedError("Authentication invalid")
+    console.log(error,'error');
+      throw new UnauthenticatedError("Authentication invalid")
   }
 }
 const authorizePermissions = (...roles) => {

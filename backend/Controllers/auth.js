@@ -4,6 +4,7 @@ const CustomError = require('../Errors')
 const {BadRequestError,UnAuthenticatedError} = require('../Errors')
 const crypto = require('crypto')
 const {createUserToken,attachCookiesToResponse,sendVerification} = require('../utils')
+const user = require('../Models/user')
 const register = async (req, res) => {
     const { email, name, password } = req.body;
     const emailAlreadyExists = await User.findOne({ email });
@@ -44,39 +45,55 @@ const login = async(req,res)=>{
   if(!user){
     throw new UnAuthenticatedError('Invaild Credentials')
   }
-  console.log('before');
   const isPasswordCorrect = await user.comparePassword(password)
-  console.log('after');
   if(!isPasswordCorrect){
+    console.log('pass');
     throw new UnAuthenticatedError('Invaild Credentials ')
   }
   // console.log(isPasswordCorrect);
   if(!user.isVerified){
     throw new UnAuthenticatedError('Please verifiy email')
   }
-  const tokenUser = createUserToken(user)
+  const tokenUser = createUserToken(user);
+  // create refresh token
   let refreshToken = '';
-  refreshToken = crypto.randomBytes(40).toString('hex');
-  const ip = req.ip;
-  const userAgent = req.headers['user-agent'];
-  const userToken = {refreshToken,userAgent,ip,user:user._id};
-  await Token.create(userToken);
   //check if token exist
-  const TokenExist =  Token.findOne({user:user._id})
+  const TokenExist = await  Token.findOne({user:user._id})
+  console.log(TokenExist,'TokenExist');
   if(TokenExist){
     refreshToken = TokenExist.refreshToken
-    if(!TokenExist.isValid){
+    console.log(TokenExist.isVaild);
+    if(!TokenExist.isVaild){
+      console.log('token');
       throw new UnAuthenticatedError('Invaild Credentials')
     }
     attachCookiesToResponse({res,user:tokenUser,refreshToken})
     res.status(201).json({user:tokenUser});
     return;
   }
+  refreshToken = crypto.randomBytes(40).toString('hex');
+  const ip = req.ip;
+  const userAgent = req.headers['user-agent'];
+  const userToken = {refreshToken,userAgent,ip,user:user._id};
+  await Token.create(userToken);
   attachCookiesToResponse({res,user:tokenUser,refreshToken})
   res.status(201).json({user:tokenUser});
 }
 const logout = async(req,res)=>{
-  res.send("Dd")
+  // delete token from db
+  await Token.findOneAndDelete({user:req.user.userId});
+  // delelte accessToken from cookies
+  res.cookie('accessToken',{
+    httpOnly:true,
+    expires: new Date(Date.now())
+  });
+  // delete refreshToken from cookies
+  res.cookie('refreshToken',{
+    httpOnly:true,
+    expires: new Date(Date.now())
+  });
+
+  res.status(200).json({msg:'user logged out!'})
 }
   
   module.exports = {

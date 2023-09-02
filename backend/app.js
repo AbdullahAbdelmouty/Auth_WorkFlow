@@ -6,6 +6,7 @@ const conntectDB = require('./DB/connect')
 const cookiesParser = require('cookie-parser')
 // routes
 const authRouter = require('./Routes/auth')
+const userRouter = require('./Routes/user')
 // middleware
 const errorHandlerMiddleware = require('./Middlewares/error_handler_middleware')
 const notFoundMiddleware = require('./Middlewares/not_found_middleware')
@@ -13,6 +14,7 @@ app.use(express.json())
 app.use(cookiesParser(process.env.JWT_SECERT))
 
 app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/users',userRouter)
 
 // app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
