@@ -95,10 +95,34 @@ const logout = async(req,res)=>{
 
   res.status(200).json({msg:'user logged out!'})
 }
+
+const forgotPassword = async(req,res)=>{
+  const {email} = req.body;
+  if(!email){
+    throw new BadRequestError('Please provide email')
+  }
+  const user = await User.findOne({email});
+  if(user){
+    const passwordToken = crypto.randomBytes(70).toString('hex');
+    // send email
+    const tenMinutes = 1000*60*10;
+    const passwordTokenExpirationDate = new Date(Date.now()+tenMinutes);
+    user.save()
+  }
+  // notes you must send msg otherwise the email is already exist in the database or not
+  // to prevent attackers from snooping what emails are exist in db,by traying to write email and see response
+  res.status(200).json({msg:"Please check your email to reset password"})
+}
+
+const resetPassword = async(req,res)=>{
+  res.send('reset password')
+}
   
   module.exports = {
     register,
     verifyEmail,
     login,
-    logout
+    logout,
+    forgotPassword,
+    resetPassword
   };

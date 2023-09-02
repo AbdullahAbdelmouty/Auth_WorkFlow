@@ -36,6 +36,12 @@ const UserSchema = new mongoose.Schema({
     },
     verified:{
         type:Date
+    },
+    passwordToken:{
+        type:String
+    },
+    passwordTokenExpirationDate:{
+        type: Date
     }
     })
 
