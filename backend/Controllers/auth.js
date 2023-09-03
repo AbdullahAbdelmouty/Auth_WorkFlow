@@ -3,7 +3,7 @@ const Token = require('../Models/token')
 const CustomError = require('../Errors')
 const {BadRequestError,UnAuthenticatedError} = require('../Errors')
 const crypto = require('crypto')
-const {createUserToken,attachCookiesToResponse,sendVerification,sendResetPassword} = require('../utils')
+const {createUserToken,attachCookiesToResponse,sendVerification,sendResetPassword,createHash} = require('../utils')
 const user = require('../Models/user')
 const register = async (req, res) => {
     const { email, name, password } = req.body;
@@ -104,11 +104,20 @@ const forgotPassword = async(req,res)=>{
   const user = await User.findOne({email});
   if(user){
     const passwordToken = crypto.randomBytes(70).toString('hex');
+    console.log(passwordToken,'before hash');
     // send email
     const origin = 'http://localhost:3000'
-    await sendResetPassword({name:user.name,email:user.email,token:passwordToken,origin})
+    await sendResetPassword({
+      name:user.name,
+      email:user.email,
+      token:passwordToken,
+      origin
+    })
     const tenMinutes = 1000*60*10;
     const passwordTokenExpirationDate = new Date(Date.now()+tenMinutes);
+    user.passwordToken = createHash(passwordToken);
+    console.log(user.passwordToken,'after hash');
+    user.passwordTokenExpirationDate = passwordTokenExpirationDate;
     await user.save()
   }
   // notes you must send msg otherwise the email is already exist in the database or not
@@ -121,18 +130,24 @@ const resetPassword = async(req,res)=>{
   if(!email,!password,!token){
     throw new BadRequestError('Please Provide All Values')
   }
-  const user = User.findOne({email});
+  const user = await User.findOne({email});
+  console.log(user.passwordToken,user.email,'user');
   if(user){
     const currentDate = new Date();
-    if(user.passwordToken === token&& user.passwordTokenExpirationDate>currentDate){
+    console.log(user.passwordToken,createHash(token),'com');
+    if(user.passwordToken === createHash(token)&& user.passwordTokenExpirationDate>currentDate){
+      console.log(password,'password');
       user.password = password;
       user.passwordToken = null;
       user.passwordTokenExpirationDate = null;
       await user.save();
+    }else{
+      console.log('faild');
     }
   }
+  console.log('nothing');
 
-  res.status(200).json({mesg:"Reset Password"})
+  res.status(200).json({msg:"Reset Password"})
 }
   
   module.exports = {

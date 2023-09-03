@@ -22,6 +22,7 @@ const ResetPasswordForm = () => {
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log(query.get('token'),'token');
     setLoading(true);
     if (!password) {
       showAlert({ text: 'please enter password' });

@@ -20,6 +20,10 @@ const errorHandlerMiddleware = async(err, req, res, next)=>{
         customError.msg = `No item found with id : ${err.value}`;
         customError.statusCode = 404;
     }
+    if (err.name === 'JsonWebTokenError') {
+        customError.msg = `jwt must be provided`;
+        customError.statusCode = 404;
+    }
     return res.status(customError.statusCode).json({ msg: customError.msg });
 }
 
