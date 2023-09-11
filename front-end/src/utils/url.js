@@ -1,3 +1,3 @@
-const url = 'https://auth-work-flow-cwinnjb7d-abdullahabdelmouty.vercel.app/';
+const url = 'https://auth-workflow-kls5.onrender.com/';
 
 export default url;
