@@ -43,6 +43,7 @@ function Register() {
       showAlert({ text: data.msg, type: 'success' });
     } catch (error) {
       const { msg } = error.response.data;
+      console.log(error.response.data);
       showAlert({ text: msg || 'there was an error' });
     }
     setLoading(false);
