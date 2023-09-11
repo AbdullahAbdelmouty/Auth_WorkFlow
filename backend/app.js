@@ -12,7 +12,10 @@ const errorHandlerMiddleware = require('./Middlewares/error_handler_middleware')
 const notFoundMiddleware = require('./Middlewares/not_found_middleware')
 app.use(express.json())
 app.use(cookiesParser(process.env.JWT_SECERT))
-
+app.get('/',(req,res)=>{
+    res.send('auth api')
+}
+)
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users',userRouter)
 
