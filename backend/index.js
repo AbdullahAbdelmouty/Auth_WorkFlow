@@ -25,7 +25,7 @@ app.use(morgan('dev'))
 //     changeOrigin: true,
 // }
 // create the proxy (without context)
-const proxy = createProxyMiddleware(options);
+// const proxy = createProxyMiddleware(options);
 // mount `exampleProxy` in web server
 
 app.get('/test',(req,res)=>{
