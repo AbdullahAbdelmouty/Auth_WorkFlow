@@ -20,22 +20,22 @@ app.use(express.json())
 app.use(cookiesParser(process.env.JWT_SECERT))
 app.use(morgan('dev'))
 // create proxy middleware options
-const options = {
-    target:"https://auth-work-flow-sa3n.vercel.app",
-    changeOrigin: true,
-}
+// const options = {
+//     target:"https://auth-work-flow-sa3n.vercel.app",
+//     changeOrigin: true,
+// }
 // create the proxy (without context)
 const proxy = createProxyMiddleware(options);
 // mount `exampleProxy` in web server
 
-app.get('/test',proxy,(req,res)=>{
+app.get('/test',(req,res)=>{
     res.send('auth api')
 }
 )
 
 // const proxyMiddleware = createProxyMiddleware(options)
-app.use('/api/v1/auth',proxy,authRouter);
-app.use('/api/v1/users',proxy,userRouter)
+app.use('/api/v1/auth',authRouter);
+app.use('/api/v1/users',userRouter)
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
