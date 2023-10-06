@@ -21,7 +21,7 @@ app.use(cookiesParser(process.env.JWT_SECERT))
 app.use(morgan('dev'))
 // create proxy middleware options
 const options = {
-    target:"https://auth-workflow-kls5.onrender.com",
+    target:"https://auth-work-flow-sa3n.vercel.app",
     changeOrigin: true,
 }
 // create the proxy (without context)
